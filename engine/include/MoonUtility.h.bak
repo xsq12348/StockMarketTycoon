@@ -1,0 +1,400 @@
+﻿#include"MoonType.h"
+
+//------------------------------------基础工具函数-----------------------------------------------//
+
+/*
+* 函數 MoonHash
+* 作用 求字符串的Hash值
+* 使用方法
+* char arr[12] = "Hello_World";
+* int alpha = Moonhash(arr)
+*/
+extern unsigned int MoonHash(char* text);
+
+/*
+* 函數 DegRad
+* 作用 求弧度值
+* 使用方法
+* float alpha = cos(DegRad(45));
+*/
+extern float MoonDegRad(float phi); //角度转弧度
+
+/*
+* 函數 MoonKeyState
+* 作用 獲取硬件狀態
+* 使用方法
+* _Bool alpha = MoonKeyState(MOON_KEY_SPACE);
+*/
+extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
+
+/*
+* 函數 MoonKeyReal
+* 作用 獲取硬件狀態
+*     即时检测
+* 使用方法
+* _Bool alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
+*/
+extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
+
+/*
+* 函數 Lerp
+* 作用 線性插值
+* 使用方法
+* float alpha = Lerp(0, 1, .5f);
+*/
+#define MoonLerp(alpha, beta, t) ((1.f - (t)) * (alpha) + (t) * (beta))				//线性插值
+
+/*
+* 函數 Moonmax
+* 作用 限制範圍
+* 使用方法
+* int alpha = Moonmax(0, 100);
+*/
+#define MoonMax(a,b) (((a) > (b)) ? (a) : (b))
+
+/*
+* 函數 Moonmin
+* 作用 限制範圍
+* 使用方法
+* int alpha = Moonmin(0, 100);
+*/
+#define MoonMin(a,b) (((a) < (b)) ? (a) : (b))
+
+/*
+* 函數 RANGE
+* 作用 限制範圍
+* 使用方法
+* int alpha = MoonRange(beta, 0, 100);
+*/
+#define MoonRange(alpha, alpha_min, alpha_max) (MoonMin(MoonMax(alpha, alpha_min), alpha_max))//限制范围
+
+/*
+* 函數 MoonSetMouseCoord
+* 作用 設置窗口输入中光标的状态
+* 使用方法
+* MoonSetMouseCoord(x, y);
+*/
+extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
+
+/*
+* 函數 Random
+* 作用 獲取隨機數
+* 使用方法
+* int alpha = Random(0, 100);
+*/
+#define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))//随机数获取
+
+/*
+* 函數 MoonMusic
+* 作用 播放音樂
+* 使用方法
+* MoonMusic("music.mp3");
+*/
+extern void MoonMusic(const char* File);//播放音乐
+
+/*
+* 函數 MoonTriangleDetection
+* 作用 檢測點與三角形的位置關係
+* 使用方法
+* MOON_POINT2D point[4] =
+* {
+*	{0,0},
+*	{10,0},
+*	{0,10},
+*	{5,50}
+* };
+* _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
+*/
+extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
+
+/*
+* 函數 MoonString
+* 作用 字符串拼接
+* 使用方法
+* MoonString(str)
+*/
+#define MoonString(str)	""#str
+
+/*
+* 函數 MoonRGBA
+* 作用 写入颜色值
+* 使用方法
+* MoonRGBA(r,g,b,a)
+*/
+#define MoonRGBA(r,g,b,a) ((r)|((g) << 8)|((b) << 16)|((a) << 24))
+
+/*
+* 函數 MoonAlloc
+* 作用 内存分配,结束时会自动回收
+* 使用方法
+* 支持
+* "malloc"
+* "calloc"
+* "realloc"
+* MoonAlloc(ptr,sizeof(type),num,"malloc");
+*/
+extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc);
+
+/*
+* 函數 MoonFree
+* 作用 提前将注册的内存回收
+*		注意回收后仍在使用的野指针
+* 使用方法
+* MoonFree(ptr);
+*/
+extern _Bool MoonFree(void* ptr);
+
+//------------------------------------定时函数--------------------------------------------------//
+
+
+/*
+* 函數 MoonTimeLoadInit
+* 作用 初始化定時器
+* 使用方法
+* TIMELOAD load;
+* MoonTimeLoadInit(&load, 100);
+*/
+extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load);		//初始化定时器
+
+/*
+* 函數 MoonTimeLoad
+* 作用 運行定時器
+* 使用方法
+* MoonTimeLoad(&load, 1);
+*/
+extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode);//运行定时器
+
+/*
+* 函數 MoonSleep
+* 作用 暫停
+* 使用方法
+* MoonSleep(1);
+*/
+extern int MoonSleep(int timeload);					//暂停
+
+//------------------------------------实体函数--------------------------------------------------//
+
+
+/*
+* 函數 MoonFindEntity
+* 作用 尋找實體
+* 使用方法
+* int* entity = (int*)MoonFindEntity(projectgod, (char*)nameid)
+*/
+extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid);	//寻找实体
+
+/*
+* 函數 HashFindEntity
+* 作用 hash寻找实体
+* 使用方法
+* HashFindEntity(project, "ProjectBitmap", int, engineback);
+*/
+#define MoonHashFindEntity(projectgod, nameid, type, entity) type* entity = (type*)MoonFindEntity(projectgod, (char*)nameid)//hash寻找实体
+
+/*
+* 函數 MoonCreateEntityIndex
+* 作用 注册实体
+* 使用方法
+* static TIMELOAD logictps;
+* MoonCreateEntityIndex(project, &logictps, "LogicTps", sizeof(TIMELOAD));
+*/
+extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
+
+//------------------------------------图像操作函数------------------------------------------------//
+
+
+/*
+* 函數 MoonCreateImage
+* 作用 创建双缓冲绘图绘图区
+* 使用方法
+* IMAGE buffer;
+* MoonCreateImage(&buffer, project->window_width, project->window_height);
+*/
+extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
+
+/*
+* 函數 MoonDeletImage
+* 作用 删除双缓冲绘图绘图区/紋理
+* 使用方法
+* MoonDeletImage(bitmap);
+*/
+extern void MoonImageDelete(MOON_IMAGE* image);//删除双缓冲绘图绘图区
+
+/*
+* 函數 MoonImageLoad
+* 作用 加載BMP圖片到紋理中
+* 使用方法
+* const wchar_t* files[] = {L"1.bmp", L"2.bmp"};
+* MoonImageLoad(&image, files, 2);
+*/
+extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber);	//加载图片
+
+/*
+* 函數 MoonImageLoadBatch
+* 作用 批量創建紋理並加載圖片
+* 使用方法
+* IMAGE frames[10];
+* const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
+* MoonImageLoadBatch(frames, 10, names, 64, 64);
+*/
+extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
+
+/*
+* 这个函数对您来说可能没有用处
+* 函數 MoonImageDesignated
+* 作用 手動指定當前的渲染目標紋理
+* 使用方法
+* MoonImageDesignated(&backBuffer);
+*/
+extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
+
+//------------------------------------多线程函数------------------------------------------------//
+
+
+/*
+* 函數 创建多线程函数
+* 作用 MOON_CREATETHREADFUNCTION
+* 使用方法
+* MOON_CREATETHREADFUNCTION(Thread);
+*/
+#define MOON_CREATETHREADFUNCTION(NAME)       MOON_THREAD NAME(void* lparam)//创建多线程函数
+
+/*
+* 函數 CREATETHREAD
+* 作用 创建并运行多线程函数
+* 使用方法
+* CREATETHREAD(Thread, project);
+*/
+#define MOON_CREATETHREAD(fuction, name, resource)   SDL_CreateThread(fuction, name, (void*)resource);//创建并运行多线程函数
+
+/*
+* 函數 GETTHREADRESOURCE
+* 作用 获取多綫程函數外部导入的资源
+* 使用方法
+* static MOON_CREATETHREADFUNCTION(Thread)
+* {
+*	GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
+*	return 1;
+* }
+*/
+#define MOON_GETTHREADRESOURCE(type, resource) type resource = (type)lparam;	//获取外部导入的资源
+
+//------------------------------------字符串操作函数------------------------------------------------//
+
+
+/*
+* 函數 MoonCharToWchar
+* 作用 字符转换
+* 使用方法
+* wchar_t* text1;
+* char* text2 = "Hello";
+* MoonCharToWchar(text1, text2, 5);
+*/
+extern int MoonCharToWchar(wchar_t* text1, char* text2, int len);//字符转换
+
+/*
+* 函數
+* 作用 字符转换
+* 使用方法
+* char* text1;
+* wchar_t* text2 = L"Hello";
+* MoonCharToWchar(text1, text2, 5);
+*/
+extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
+
+/*
+* 函數 MoonStrMatch_Prefix
+* 作用 匹配字符串前缀
+*/
+extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2);
+
+/*
+* 函數 MoonStrMatch_PrefixIgnore
+* 作用 匹配字符串前缀,忽略特定字符
+*/
+extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch);
+
+/*
+* 函數 StrMatch_PrefixIgnoreStr
+* 作用 忽略字符,比较时忽略 igno_str 中出现的任意字符
+*/
+extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str);
+
+/*
+* 函數 MoonStrMatch_Replace
+* 作用 替换字符
+*/
+extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace);
+
+/*
+* 函數 MoonFileLoad_TEXT
+* 作用 加载文本文件
+* 使用方法
+*	MoonFileLoad_TEXT("a.txt", text, strlen(text));
+*/
+extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);
+
+//------------------------------------按钮控件------------------------------------------------//
+
+/*
+* 函數 MoonButtonInit
+* 作用 初始化按鈕控件
+* 使用方法
+* MOONBUTTON btn;
+* MoonButtonInit(&btn, 10, 10, 100, 50);
+*/
+extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height);		//初始化按钮
+
+/*
+* 函數 MoonButtonDetection
+* 作用 檢測按鈕觸發狀態
+* 使用方法
+* if(MoonButtonDetection(button, x, y, context) { ... }
+*/
+extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context);
+
+/*
+* 函數 MoonButtonSetTriggerMode
+* 作用 更改按鈕觸發方式
+* 使用方法
+* MoonButtonSetTriggerMode(project, "MyButton", MOON_BUTTONPRESS);
+*/
+extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key);//更改触发方式
+
+/*
+* 函數 MOON_BUTTON_CREATE
+* 作用 便捷注冊按鈕
+* 使用方法
+* static MOONBUTTON button
+* MOONBUTTONCREATE(project, name, button, x, y, w, h, 0, 0, 0);
+*/
+#define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover, False)  \
+{	\
+	MoonButtonInit(&button,(x), (y), (width), (height));                                        \
+	MoonButtonSetTriggerMode(project,&button,MOON_KEY_MOUSE_LEFT);								\
+	button.ButtonModeHover = (Hover);                                                           \
+	button.ButtonModePress = (Press);                                                           \
+	button.ButtonModePressL = (PressL);                                                         \
+	button.ButtonModeFalse = (PressL);                                                          \
+	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
+}
+//------------------------------------着色器函数------------------------------------------------//
+
+/*
+* 注意!這個函數對您的代碼可能沒有任何作用!
+* 如果要修改着色器,请如下操作來實現着色器重载 (Shader Hot-reloading),并且通過傳入的
+* 函數 MoonShaderLoad
+* 作用 初始化所有内部繪圖函數
+* 使用方法
+* MoonShaderLoad(shader, shader, program);
+*/
+extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program);//初始化所有内部繪圖函數
+
+/*
+* 注意!這個函數對您的代碼可能沒有任何作用!
+* 函數 MoonShaderUniform
+* 作用 OpenGL的uniform函数
+* 使用方法
+* MoonShaderUniform(shader, var, data);
+*/
+extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM_DATA* data);

@@ -1,0 +1,21 @@
+# 编译产物
+build/
+*.obj
+*.pdb
+*.ilk
+*.idb
+Intermediate/
+
+# Python
+__pycache__/
+*.pyc
+
+# 训练数据（体积大、可重新生成）
+*.csv
+*.npz
+
+# 临时文件
+*.log
+ai_cmd*.txt
+ai_state.txt
+trades.log
